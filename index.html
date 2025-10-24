@@ -366,6 +366,14 @@
         const faqItems = document.querySelectorAll('.faq-item');
         const noResultsMessage = document.getElementById('no-results-message');
 
+        // Armazena o conteúdo original de forma mais detalhada para restauração
+        const originalContents = Array.from(faqItems).map(item => {
+            return {
+                question: item.querySelector('.faq-question').innerHTML,
+                answer: item.querySelector('.faq-answer').innerHTML
+            };
+        });
+
         // Função do Accordion
         faqContainer.addEventListener('click', (e) => {
             const questionHeader = e.target.closest('.faq-question');
@@ -375,80 +383,40 @@
             faqItem.classList.toggle('active');
         });
 
-        // Função para remover destaques
-        function unhighlight(container) {
-            const marks = container.querySelectorAll('mark');
-            marks.forEach(mark => {
-                const parent = mark.parentNode;
-                parent.replaceChild(document.createTextNode(mark.textContent), mark);
-                parent.normalize(); // Junta nós de texto adjacentes
-            });
-        }
-        
-        // Função para adicionar destaques de forma segura
-        function highlight(container, term) {
-            const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
-            let node;
-            const nodesToProcess = [];
-            while(node = walker.nextNode()) {
-                nodesToProcess.push(node);
-            }
-
-            nodesToProcess.forEach(node => {
-                const lowerCaseText = node.textContent.toLowerCase();
-                let startIndex = 0;
-                let index = lowerCaseText.indexOf(term, startIndex);
-
-                if (index > -1) {
-                    const originalText = node.textContent;
-                    const parent = node.parentNode;
-                    let lastNode = node;
-
-                    while (index > -1) {
-                        const beforeText = originalText.substring(startIndex, index);
-                        if (beforeText) {
-                            parent.insertBefore(document.createTextNode(beforeText), lastNode);
-                        }
-
-                        const matchedText = originalText.substring(index, index + term.length);
-                        const mark = document.createElement('mark');
-                        mark.textContent = matchedText;
-                        parent.insertBefore(mark, lastNode);
-                        
-                        startIndex = index + term.length;
-                        index = lowerCaseText.indexOf(term, startIndex);
-                    }
-                    
-                    const afterText = originalText.substring(startIndex);
-                    if (afterText) {
-                        parent.insertBefore(document.createTextNode(afterText), lastNode);
-                    }
-                    
-                    parent.removeChild(lastNode);
-                }
-            });
+        function sanitizeForRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
-        // Função da Busca
+        // Função da Busca (CORRIGIDA)
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.trim().toLowerCase();
             let matchesFound = 0;
 
-            faqItems.forEach((item) => {
-                unhighlight(item);
+            faqItems.forEach((item, index) => {
+                const questionEl = item.querySelector('.faq-question');
+                const answerEl = item.querySelector('.faq-answer');
+
+                // 1. Restaura o conteúdo original antes de cada busca
+                questionEl.innerHTML = originalContents[index].question;
+                answerEl.innerHTML = originalContents[index].answer;
 
                 const itemText = item.textContent.toLowerCase();
                 const isVisible = searchTerm.length === 0 || itemText.includes(searchTerm);
 
-                item.style.display = isVisible ? '' : 'none';
+                item.style.display = isVisible ? 'block' : 'none';
 
                 if (isVisible) {
                     matchesFound++;
                     if (searchTerm.length > 0) {
-                        item.classList.add('active');
-                        highlight(item, searchTerm);
+                        item.classList.add('active'); // Expande o item se houver correspondência
+                        
+                        const regex = new RegExp(sanitizeForRegex(searchTerm), 'gi');
+                        
+                        // 2. Aplica o destaque no HTML restaurado
+                        questionEl.innerHTML = questionEl.innerHTML.replace(regex, match => `<mark>${match}</mark>`);
+                        answerEl.innerHTML = answerEl.innerHTML.replace(regex, match => `<mark>${match}</mark>`);
                     } else {
-                        item.classList.remove('active');
+                        item.classList.remove('active'); // Contrai o item quando a busca é limpa
                     }
                 }
             });
