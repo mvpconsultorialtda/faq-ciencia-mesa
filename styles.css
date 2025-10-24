@@ -1,0 +1,53 @@
+/* styles.css - Estilo principal para FAQ Consultoria FAPESB */
+:root{
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#0b5fff;
+  --accent-600:#084ad6;
+  --radius:12px;
+  --max-width:960px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background:linear-gradient(180deg,var(--bg),#eef2ff);
+  color:#111827;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--max-width);margin:28px auto;padding:0 20px}
+
+.site-header{background:transparent;padding:18px 0}
+.site-header .wrap{display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:700;color:var(--accent);letter-spacing:0.2px}
+.nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-weight:600}
+.nav a:hover{color:var(--accent)}
+
+.main-card{background:var(--card);border-radius:var(--radius);padding:28px;box-shadow:0 8px 30px rgba(11,95,255,0.08)}
+.title{margin:0;font-size:28px;color:#07205a;text-align:center}
+.lead{text-align:center;color:var(--muted);margin-top:8px;margin-bottom:20px}
+
+.search-wrap{max-width:640px;margin:18px auto 26px}
+#searchInput{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #e6e9ef;background:#fbfdff;font-size:15px}
+#searchInput:focus{outline:none;box-shadow:0 6px 20px rgba(11,95,255,0.12);border-color:var(--accent-600)}
+
+.faq-item{margin-bottom:18px;padding:18px;border-radius:10px;background:linear-gradient(180deg,#ffffff,#fbfdff);border:1px solid #eef2ff;box-shadow:0 6px 18px rgba(16,24,40,0.03)}
+.faq-item h3{margin:0 0 8px 0;color:#07205a;font-size:16px}
+.faq-item p, .faq-item li{color:#334155;margin:0 0 8px 0}
+.faq-item ul{margin:8px 0 0 18px}
+
+.no-results{text-align:center;padding:20px;font-style:italic;color:var(--muted);display:none}
+
+mark{background:#fffbeb;color:#7a4f02;padding:2px 4px;border-radius:4px}
+
+.site-footer{margin:28px 0 44px 0;text-align:center;color:var(--muted);font-size:13px}
+
+/* Responsividade */
+@media (max-width:640px){
+  .title{font-size:22px}
+  .wrap{margin:16px auto}
+  .nav a{margin-left:12px}
+}
