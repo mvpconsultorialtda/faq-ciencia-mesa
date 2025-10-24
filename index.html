@@ -7,7 +7,154 @@
     <title>FAQ - Consultoria para Editais FAPESB</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css">
+    
+    <!-- CSS CORRIGIDO: Integrado diretamente no HTML -->
+    <style>
+      :root {
+        --color-primary: #0056b3;
+        --color-bg: #f8f9fa;
+        --color-card-bg: #ffffff;
+        --color-text: #212529;
+        --color-text-light: #6c757d;
+        --color-border: #dee2e6;
+        --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      body {
+        font-family: var(--font-family);
+        line-height: 1.6;
+        margin: 0;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+      }
+
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .site-header {
+        background-color: var(--color-card-bg);
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--color-border);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      
+      .site-header .wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .brand {
+        font-weight: 700;
+        color: var(--color-primary);
+        font-size: 1.2rem;
+      }
+      
+      .nav a {
+        margin-left: 1.5rem;
+        text-decoration: none;
+        color: var(--color-text-light);
+        font-weight: 600;
+        transition: color 0.2s;
+      }
+      
+      .nav a:hover {
+        color: var(--color-primary);
+      }
+
+      .main-card {
+        background-color: var(--color-card-bg);
+        padding: 30px 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-top: 40px;
+        margin-bottom: 40px;
+      }
+
+      .title {
+        color: #003366;
+        text-align: center;
+        border-bottom: 2px solid var(--color-border);
+        padding-bottom: 15px;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      
+      .lead {
+        text-align: center;
+        color: var(--color-text-light);
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+      }
+
+      .search-wrap {
+        margin-bottom: 30px;
+      }
+
+      #searchInput {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 16px;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        box-sizing: border-box;
+      }
+
+      #searchInput:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+      }
+
+      h2 {
+        color: var(--color-primary);
+        margin-top: 40px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--color-border);
+      }
+      
+      section:first-of-type h2 {
+        margin-top: 0;
+      }
+
+      .faq-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-left: 4px solid var(--color-primary);
+        background-color: #fdfdff;
+        border-radius: 0 4px 4px 0;
+      }
+      
+      .faq-item h3 {
+        margin-top: 0;
+      }
+
+      .no-results {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: var(--color-text-light);
+        display: none;
+      }
+
+      mark {
+        background-color: #fff3cd;
+        color: #5d4a14;
+        padding: 2px 3px;
+        border-radius: 3px;
+      }
+      
+      .site-footer {
+        text-align: center;
+        padding: 1.5rem 0;
+        color: var(--color-text-light);
+        font-size: 0.9rem;
+      }
+      
+    </style>
   </head>
   <body>
 
@@ -166,11 +313,11 @@
         const faqItems = document.querySelectorAll('.faq-item');
         const noResultsMessage = document.getElementById('no-results-message');
         
-        // Armazena o HTML original para restaurar o destaque
         const originalHTML = Array.from(faqItems).map(item => item.innerHTML);
 
         function sanitizeTerm(term) {
-          return term.replace(/[.*+?^${}()|[\\]\\]/g, "\\\\$&");
+          // Escapa caracteres especiais para uso seguro em RegExp
+          return term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         }
 
         searchInput.addEventListener('input', (e) => {
@@ -178,8 +325,7 @@
             let matchesFound = 0;
 
             faqItems.forEach((item, index) => {
-                // Restaura o HTML original antes de cada busca para remover o destaque anterior
-                item.innerHTML = originalHTML[index];
+                item.innerHTML = originalHTML[index]; // Restaura o HTML original
 
                 const itemText = item.textContent.toLowerCase();
                 const isVisible = searchTerm.length === 0 || itemText.includes(searchTerm);
@@ -189,179 +335,15 @@
                 if (isVisible) {
                     matchesFound++;
                     if (searchTerm.length > 0) {
-                        // Aplica o destaque no HTML do item
-                        const regex = new RegExp(sanitizeTerm(searchTerm), 'gi'); // 'g' para global, 'i' para case-insensitive
+                        const regex = new RegExp(sanitizeTerm(searchTerm), 'gi');
                         item.innerHTML = item.innerHTML.replace(regex, (match) => `<mark>${match}</mark>`);
                     }
                 }
             });
 
-            // Mostra ou esconde a mensagem de "nenhum resultado"
             noResultsMessage.style.display = matchesFound === 0 ? 'block' : 'none';
         });
     </script>
 
   </body>
-</html>
-            <section id="for-proponent">
-                <h2>Seção 1: Informações para Apresentação ao Professor (Proponente)</h2>
-                
-                <div class="faq-item">
-                    <h3>1. Qual é o objetivo principal do projeto?</h3>
-                    <p>O projeto consiste em uma iniciativa da FAPESB que visa educar a população sobre temas de saúde e alimentação de forma inovadora. O objetivo é desenvolver soluções, principalmente jogos digitais e físicos, que utilizem fontes de informação do governo do estado para transmitir conhecimento de maneira lúdica e acessível.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h3>2. Quais são as áreas de conhecimento que o edital abrange?</h3>
-                    <p>O edital é focado em propostas que integrem as áreas de <strong>Saúde, Alimentação e Nutrição</strong>. Além disso, projetos que envolvam <strong>Comunicação, Tecnologia e Inovação</strong>, como programação e desenvolvimento, são altamente relevantes para a execução das propostas.</p>
-                </div>
-                
-                <div class="faq-item">
-                    <h3>3. Que tipo de produtos são criados a partir dos projetos aprovados?</h3>
-                    <p>Os projetos executados resultam no desenvolvimento de jogos. Cada proposta geralmente inclui:</p>
-                    <ul>
-                        <li><strong>Um jogo digital:</strong> Que pode ser um aplicativo gamificado, um quiz online, um jogo no estilo de videogame ou uma versão digital de um jogo de tabuleiro.</li>
-                        <li><strong>Um jogo físico:</strong> Que pode ser uma adaptação do jogo digital para o formato físico ou um jogo de tabuleiro completamente novo, com suas próprias regras e estrutura.</li>
-                    </ul>
-                </div>
-
-                <div class="faq-item">
-                    <h3>4. Todos os professores recebem a mesma proposta de projeto?</h3>
-                    <p>Não. Cada professor é alinhado a uma <strong>ideia de projeto única e diferente</strong>. No entanto, todas as propostas seguem a mesma estrutura conceitual: um produto digital (jogo, app ou site gamificado) acompanhado de um produto físico (geralmente um jogo de tabuleiro).</p>
-                </div>
-
-                <div class="faq-item">
-                    <h3>5. Em que consiste a consultoria oferecida?</h3>
-                    <p>Oferecemos uma consultoria completa e gratuita para professores universitários interessados em submeter propostas ao edital. Nosso trabalho inclui:</p>
-                    <ul>
-                        <li>Apresentar uma ideia de projeto já validada e aderente ao edital.</li>
-                        <li>Adaptar o escopo do projeto ao currículo Lattes do professor.</li>
-                        <li>Construir a proposta completa, incluindo orçamento, cronograma e toda a documentação.</li>
-                        <li>Submeter o projeto finalizado em nome do professor na plataforma da FAPESB.</li>
-                    </ul>
-                </div>
-                
-                <div class="faq-item">
-                    <h3>6. A consultoria é realmente gratuita? O que vocês ganham com isso?</h3>
-                    <p>Sim, a consultoria para a elaboração e submissão do projeto é <strong>100% gratuita</strong>. Nosso modelo de negócio se baseia na fase de execução: caso o projeto seja aprovado, apresentamos ao professor uma lista de empresas parceiras qualificadas para desenvolver o trabalho. Se o professor optar por contratar uma de nossas parceiras, nós continuamos gerenciando toda a parte burocrática do projeto.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h3>7. E se meu projeto for aprovado? Sou obrigado a contratar uma das empresas indicadas?</h3>
-                    <p>Não. Após a aprovação do projeto, a decisão é inteiramente sua. Você receberá uma lista de empresas qualificadas e poderá escolher uma delas ou seguir com outros fornecedores de sua preferência. A nossa gestão continuada do projeto está condicionada à escolha de um de nossos parceiros.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h3>8. Qual é exatamente o meu papel como professor após a aprovação, se eu fechar com uma de nossas empresas?</h3>
-                    <p>O seu papel será o de <strong>supervisor do processo</strong>. Você terá total visibilidade e poder de aprovação, mas sem a carga de trabalho operacional. Você poderá atuar de duas formas:</p>
-                    <ol>
-                        <li><strong>Ativamente:</strong> Demandando ações e relatórios específicos para a equipe de consultoria.</li>
-                        <li><strong>Passivamente:</strong> Sendo informado sobre cada etapa do processo e apenas validando as entregas.</li>
-                    </ol>
-                    <p>Isso garante que você tenha segurança e controle, já que é o proponente oficial, enquanto nós cuidamos de toda a execução burocrática.</p>
-                </div>
-            </section>
-            
-            <!-- SEÇÃO 2: DIRETRIZES PARA O CAPTADOR -->
-            <section id="for-capturer">
-                <h2>Seção 2: Diretrizes Internas para o Captador</h2>
-                
-                <div class="faq-item">
-                    <h3>1. Qual é o perfil exato do professor que buscamos?</h3>
-                    <p>O proponente precisa atender a critérios específicos:</p>
-                    <ul>
-                        <li>Deve ser <strong>Doutor (PhD)</strong>.</li>
-                        <li>Deve ser vinculado a uma <strong>universidade pública do Estado da Bahia</strong>.</li>
-                    </ul>
-                </div>
-                
-                <div class="faq-item">
-                    <h3>2. Se cadastrarmos vários professores, eles não competirão entre si?</h3>
-                    <p>Sim, haverá concorrência, e isso é parte da nossa estratégia para aumentar o volume de propostas de alta qualidade. A cota financeira total do edital é muito alta (na casa dos milhões), e historicamente temos uma taxa de aprovação elevada (entre 80% e 100%). Portanto, há espaço para aprovar múltiplos projetos, e a concorrência interna aumenta nossas chances gerais de sucesso.</p>
-                </div>
-
-                <div class="faq-item">
-                    <h3>3. O trabalho do captador termina quando o professor aceita a parceria?</h3>
-                    <p><strong>Não.</strong> O trabalho do captador se estende para a fase de desenvolvimento da proposta. Após a captação, o fluxo é:</p>
-                    <ol>
-                        <li><strong>Fechamento da Parceria:</strong> É recomendável que a equipe de gestão (Júlia e/ou outros líderes) participe da conversa final para dar mais segurança ao professor.</li>
-                        <li><strong>Desenvolvimento do Projeto:</strong> O captador utilizará nosso playbook e ferramentas (incluindo IA) para desenvolver o escopo completo do projeto. Esta parte do processo é projetada para ser ágil.</li>
-                        <li><strong>Análise e Correção:</strong> O principal trabalho do captador nesta fase é ler, entender profundamente o projeto gerado, avaliá-lo como se fosse um parecerista do edital, e corrigir/melhorar o texto, garantindo coesão e qualidade.</li>
-                    </ol>
-                    <p>O objetivo é que o captador tenha tempo hábil para captar mais projetos, em vez de se aprofundar excessivamente na escrita de um único. Nosso modelo valoriza mais a <strong>captação de múltiplos professores</strong> do que a perfeição artesanal de uma única proposta.</p>
-                </div>
-                
-                <div class="faq-item">
-                    <h3>4. Quando a captação é considerada um sucesso e como funciona o pagamento da comissão?</h3>
-                    <p>É fundamental diferenciar a definição de sucesso da condição de pagamento.</p>
-                    <ul>
-                        <li><strong>Definição de Sucesso:</strong> O sucesso da captação é oficializado quando o projeto é aprovado pela FAPESB e o professor assina o <strong>Termo de Outorga</strong>.</li>
-                        <li><strong>Condição de Pagamento:</strong> No entanto, o pagamento da comissão ocorre em um momento posterior e está condicionado ao fluxo financeiro real do projeto. O gatilho para o pagamento é o seguinte:
-                            <ol>
-                                <li>O professor recebe a primeira parcela dos recursos da FAPESB.</li>
-                                <li>Ele efetua o primeiro pagamento (parcial ou total) à empresa de serviços contratada para executar o projeto.</li>
-                                <li>A comissão do captador é liberada assim que este pagamento é confirmado.</li>
-                            </ol>
-                        </li>
-                        <li><strong>Como funciona o pagamento proporcional:</strong> O pagamento da sua comissão é <strong>diretamente proporcional</strong> ao pagamento realizado para a empresa executora.
-                            <ul>
-                                <li><strong>Exemplo Prático:</strong>
-                                    <ul>
-                                        <li><strong>Projeto captado:</strong> R$ 300.000</li>
-                                        <li><strong>Sua comissão (ex: 5%):</strong> R$ 15.000</li>
-                                        <li>Se a empresa contratada recebe uma primeira parcela de <strong>60%</strong> do valor do serviço, você recebe imediatamente <strong>60%</strong> da sua comissão (R$ 9.000).</li>
-                                        <li>Quando a empresa receber os <strong>40%</strong> restantes em uma segunda parcela, você recebe os <strong>40%</strong> restantes da sua comissão (R$ 6.000).</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><strong>Sua Responsabilidade:</strong> Isso significa que, mesmo após a aprovação, o captador deve <strong>acompanhar o andamento do projeto</strong> para garantir que os pagamentos ocorram. Se o projeto sofrer atrasos que impactem os repasses da FAPESB ao professor e, consequentemente, os pagamentos à empresa, o pagamento da sua comissão também será adiado.</li>
-                    </ul>
-                </div>
-
-            </section>
-        </div>
-        <div class="no-results" id="no-results-message">
-            <p>Nenhum resultado encontrado para a sua busca.</p>
-        </div>
-    </div>
-
-    <script>
-        const searchInput = document.getElementById('searchInput');
-        const faqContainer = document.getElementById('faq-container');
-        const faqItems = document.querySelectorAll('.faq-item');
-        const noResultsMessage = document.getElementById('no-results-message');
-        
-        // Armazena o HTML original para restaurar o destaque
-        const originalHTML = Array.from(faqItems).map(item => item.innerHTML);
-
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            let matchesFound = 0;
-
-            faqItems.forEach((item, index) => {
-                // Restaura o HTML original antes de cada busca para remover o destaque anterior
-                item.innerHTML = originalHTML[index];
-
-                const itemText = item.textContent.toLowerCase();
-                const isVisible = itemText.includes(searchTerm);
-
-                item.style.display = isVisible ? '' : 'none';
-
-                if (isVisible) {
-                    matchesFound++;
-                    if (searchTerm.length > 0) {
-                        // Aplica o destaque no HTML do item
-                        const regex = new RegExp(searchTerm, 'gi'); // 'g' para global, 'i' para case-insensitive
-                        item.innerHTML = item.innerHTML.replace(regex, (match) => `<mark>${match}</mark>`);
-                    }
-                }
-            });
-
-            // Mostra ou esconde a mensagem de "nenhum resultado"
-            noResultsMessage.style.display = matchesFound === 0 ? 'block' : 'none';
-        });
-    </script>
-
-</body>
 </html>
