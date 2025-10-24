@@ -124,7 +124,7 @@
         margin-bottom: 10px;
         border: 1px solid var(--color-border);
         border-radius: 6px;
-        overflow: hidden; /* Garante que o conteúdo não vaze durante a animação */
+        overflow: hidden;
       }
 
       .faq-question {
@@ -139,14 +139,14 @@
       }
 
       .faq-question::after {
-        content: '+'; /* Ícone de expandir */
+        content: '+';
         font-size: 1.5rem;
         color: var(--color-primary);
         transition: transform 0.2s ease-in-out;
       }
       
       .faq-item.active .faq-question::after {
-        content: '−'; /* Ícone de minimizar */
+        content: '−';
       }
 
       .faq-answer {
@@ -158,7 +158,7 @@
       }
 
       .faq-item.active .faq-answer {
-        max-height: 1500px; /* Um valor alto o suficiente para qualquer conteúdo */
+        max-height: 1500px;
         padding: 15px 20px;
       }
       /* --- Fim dos Estilos do Accordion --- */
@@ -375,22 +375,67 @@
             faqItem.classList.toggle('active');
         });
 
-        function sanitizeTerm(term) {
-          // Escapa caracteres especiais para uso seguro em RegExp
-          return term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        // Função para remover destaques
+        function unhighlight(container) {
+            const marks = container.querySelectorAll('mark');
+            marks.forEach(mark => {
+                const parent = mark.parentNode;
+                parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                parent.normalize(); // Junta nós de texto adjacentes
+            });
+        }
+        
+        // Função para adicionar destaques de forma segura
+        function highlight(container, term) {
+            const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            const nodesToProcess = [];
+            while(node = walker.nextNode()) {
+                nodesToProcess.push(node);
+            }
+
+            nodesToProcess.forEach(node => {
+                const lowerCaseText = node.textContent.toLowerCase();
+                let startIndex = 0;
+                let index = lowerCaseText.indexOf(term, startIndex);
+
+                if (index > -1) {
+                    const originalText = node.textContent;
+                    const parent = node.parentNode;
+                    let lastNode = node;
+
+                    while (index > -1) {
+                        const beforeText = originalText.substring(startIndex, index);
+                        if (beforeText) {
+                            parent.insertBefore(document.createTextNode(beforeText), lastNode);
+                        }
+
+                        const matchedText = originalText.substring(index, index + term.length);
+                        const mark = document.createElement('mark');
+                        mark.textContent = matchedText;
+                        parent.insertBefore(mark, lastNode);
+                        
+                        startIndex = index + term.length;
+                        index = lowerCaseText.indexOf(term, startIndex);
+                    }
+                    
+                    const afterText = originalText.substring(startIndex);
+                    if (afterText) {
+                        parent.insertBefore(document.createTextNode(afterText), lastNode);
+                    }
+                    
+                    parent.removeChild(lastNode);
+                }
+            });
         }
 
-        // Função da Busca (CORRIGIDA)
+        // Função da Busca
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.trim().toLowerCase();
             let matchesFound = 0;
 
             faqItems.forEach((item) => {
-                // 1. Limpa destaques antigos de forma segura
-                const marks = item.querySelectorAll('mark');
-                marks.forEach(mark => {
-                    mark.outerHTML = mark.textContent; 
-                });
+                unhighlight(item);
 
                 const itemText = item.textContent.toLowerCase();
                 const isVisible = searchTerm.length === 0 || itemText.includes(searchTerm);
@@ -400,21 +445,10 @@
                 if (isVisible) {
                     matchesFound++;
                     if (searchTerm.length > 0) {
-                        item.classList.add('active'); // Expande o item se houver correspondência
-                        const regex = new RegExp(sanitizeTerm(searchTerm), 'gi');
-                        
-                        // 2. Aplica novos destaques de forma isolada e segura
-                        const question = item.querySelector('.faq-question');
-                        const answer = item.querySelector('.faq-answer');
-                        
-                        if (question) {
-                            question.innerHTML = question.innerHTML.replace(regex, match => `<mark>${match}</mark>`);
-                        }
-                        if (answer) {
-                            answer.innerHTML = answer.innerHTML.replace(regex, match => `<mark>${match}</mark>`);
-                        }
+                        item.classList.add('active');
+                        highlight(item, searchTerm);
                     } else {
-                        item.classList.remove('active'); // Contrai o item quando a busca é limpa
+                        item.classList.remove('active');
                     }
                 }
             });
