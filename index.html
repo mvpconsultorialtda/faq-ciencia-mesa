@@ -365,9 +365,6 @@
         const faqContainer = document.getElementById('faq-container');
         const faqItems = document.querySelectorAll('.faq-item');
         const noResultsMessage = document.getElementById('no-results-message');
-        
-        // Armazena o HTML original para restaurar o destaque
-        const originalHTML = Array.from(faqItems).map(item => item.innerHTML);
 
         // Função do Accordion
         faqContainer.addEventListener('click', (e) => {
@@ -383,13 +380,17 @@
           return term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         }
 
-        // Função da Busca
+        // Função da Busca (CORRIGIDA)
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.trim().toLowerCase();
             let matchesFound = 0;
 
-            faqItems.forEach((item, index) => {
-                item.innerHTML = originalHTML[index]; // Restaura o HTML original para busca limpa
+            faqItems.forEach((item) => {
+                // 1. Limpa destaques antigos de forma segura
+                const marks = item.querySelectorAll('mark');
+                marks.forEach(mark => {
+                    mark.outerHTML = mark.textContent; 
+                });
 
                 const itemText = item.textContent.toLowerCase();
                 const isVisible = searchTerm.length === 0 || itemText.includes(searchTerm);
@@ -399,9 +400,19 @@
                 if (isVisible) {
                     matchesFound++;
                     if (searchTerm.length > 0) {
-                        item.classList.add('active'); // Expande o item se houver correspondência na busca
+                        item.classList.add('active'); // Expande o item se houver correspondência
                         const regex = new RegExp(sanitizeTerm(searchTerm), 'gi');
-                        item.innerHTML = item.innerHTML.replace(regex, (match) => `<mark>${match}</mark>`);
+                        
+                        // 2. Aplica novos destaques de forma isolada e segura
+                        const question = item.querySelector('.faq-question');
+                        const answer = item.querySelector('.faq-answer');
+                        
+                        if (question) {
+                            question.innerHTML = question.innerHTML.replace(regex, match => `<mark>${match}</mark>`);
+                        }
+                        if (answer) {
+                            answer.innerHTML = answer.innerHTML.replace(regex, match => `<mark>${match}</mark>`);
+                        }
                     } else {
                         item.classList.remove('active'); // Contrai o item quando a busca é limpa
                     }
